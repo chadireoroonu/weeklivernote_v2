@@ -84,9 +84,31 @@ public class LocationService {
         String homeLat = String.valueOf(locationRequestDto.getHomeLat());
         String homeLong = String.valueOf(locationRequestDto.getHomeLong());
 
-        JsonNode routeResult = findOdsayData(
-            "https://api.odsay.com/v1/api/searchPubTransPathT?SX=" + nowLong
-                + "&SY=" + nowLat + "&EX=" + homeLong + "&EY=" + homeLat);
+        String urlInfo = "https://api.odsay.com/v1/api/searchPubTransPathT?SX=" + nowLong
+            + "&SY=" + nowLat + "&EX=" + homeLong + "&EY=" + homeLat + "&apiKey="
+            + URLEncoder.encode(apiKey, "UTF-8");
+
+        // HTTP 연결
+        URL url = new URL(urlInfo);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-type", "application/json");
+
+        BufferedReader bufferedReader = new BufferedReader(
+            new InputStreamReader(conn.getInputStream()));
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            sb.append(line);
+        }
+        bufferedReader.close();
+        conn.disconnect();
+
+        // JSON 데이터를 JsonNode로 파싱
+        String jsonData = sb.toString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode routeResult = objectMapper.readTree(jsonData);
 
         // 길찾기 에러 처리
         if (routeResult.has("error")) {
@@ -128,9 +150,7 @@ public class LocationService {
             if (trafficType == 1) { // 지하철
                 String stationID = subPaths.get(i).get("startID").asText();
                 String wayCode = subPaths.get(i).get("wayCode").asText();
-                JsonNode subwayDetail = findOdsayData(
-                    "https://api.odsay.com/v1/api/subwayTimeTable?lang=0&stationID=" + stationID
-                        + "&wayCode=" + wayCode);
+                JsonNode subwayDetail = findSubwayDetail(stationID, wayCode);
 
                 // 요일별, 상하행별 검색해야 하는 키 설정
                 String wayCodeKey = "0";
@@ -140,8 +160,7 @@ public class LocationService {
                     wayCodeKey = "down";
                 }
 
-                String currentDayOfWeek = LocalDate.now().getDayOfWeek()
-                    .getDisplayName(TextStyle.SHORT, Locale.getDefault());
+                String currentDayOfWeek = LocalDate.now().getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault());
                 String dayKey = "0";
                 if (currentDayOfWeek.equals("토")) {
                     dayKey = "SatList";
@@ -152,8 +171,7 @@ public class LocationService {
                 }
 
                 // 키 마지막값 파싱
-                JsonNode timeInfo = subwayDetail.get("result").get(dayKey).get(wayCodeKey)
-                    .get("time");
+                JsonNode timeInfo = subwayDetail.get("result").get(dayKey).get(wayCodeKey).get("time");
                 JsonNode lastTimeInfo = timeInfo.get(timeInfo.size() - 1);
                 String lastTimeHour = lastTimeInfo.get("Idx").asText();
                 String lastTimeMinuteList = lastTimeInfo.get("list").asText();
@@ -162,12 +180,11 @@ public class LocationService {
                 String[] tokens = lastTimeMinuteList.split("\\s+");
                 String lastTimeMinute = tokens[tokens.length - 1].substring(0, 2);
 
-                pathTime.add(lastTimeHour + ":" + lastTimeMinute);
+                pathTime.add(lastTimeHour + ":"+ lastTimeMinute);
             } else if (trafficType == 2) { // 버스
                 String busID = subPaths.get(i).get("lane").get(0).get("busID").asText();
                 int stationID = subPaths.get(i).get("startID").asInt();
-                JsonNode busDetail = findOdsayData(
-                    "https://api.odsay.com/v1/api/busLaneDetail?lang=0&busID=" + busID);
+                JsonNode busDetail = findBusDetail(busID);
 
                 String busLastTime = busDetail.get("result").get("busLastTime").asText();
                 JsonNode stations = busDetail.get("result").get("station");
@@ -201,8 +218,10 @@ public class LocationService {
         return calculateAlarmTime(pathTimes);
     }
 
-    public JsonNode findOdsayData(String subUrl) throws Exception {
-        String urlInfo = subUrl + "&apiKey=" + URLEncoder.encode(apiKey, "UTF-8");
+    public JsonNode findBusDetail(String busID) throws Exception {
+        String urlInfo =
+            "https://api.odsay.com/v1/api/busLaneDetail?lang=0&busID=" + busID + "&apiKey="
+                + URLEncoder.encode(apiKey, "UTF-8");
 
         // HTTP 연결
         URL url = new URL(urlInfo);
@@ -224,19 +243,49 @@ public class LocationService {
         // JSON 데이터를 JsonNode로 파싱
         String jsonData = sb.toString();
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode result = objectMapper.readTree(jsonData);
+        JsonNode busResult = objectMapper.readTree(jsonData);
 
-        return result;
+        return busResult;
     }
 
-    public String calculateAlarmTime(Map<String, List<Object>> pathTimes) throws Exception {
+    public JsonNode findSubwayDetail(String stationID, String wayCode) throws Exception {
+        String urlInfo =
+            "https://api.odsay.com/v1/api/subwayTimeTable?lang=0&stationID=" + stationID
+                + "&wayCode=" + wayCode + "&apiKey="
+                + URLEncoder.encode(apiKey, "UTF-8");
+
+        // HTTP 연결
+        URL url = new URL(urlInfo);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-type", "application/json");
+
+        BufferedReader bufferedReader = new BufferedReader(
+            new InputStreamReader(conn.getInputStream()));
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            sb.append(line);
+        }
+        bufferedReader.close();
+        conn.disconnect();
+
+        // JSON 데이터를 JsonNode로 파싱
+        String jsonData = sb.toString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode subwayResult = objectMapper.readTree(jsonData);
+
+        return subwayResult;
+    }
+
+    public String calculateAlarmTime(Map<String, List<Object>> pathTimes) throws Exception{
         // 거꾸로 시간 계산
         String alarmDateTime = "2023-01-02T03:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
         for (int i = 0; i < pathTimes.size() - 1; i++) {
-            String stationTime = pathTimes.get(String.valueOf(pathTimes.size() - 1 - i)).get(1)
-                .toString();
+            String stationTime = pathTimes.get(String.valueOf(pathTimes.size() - 1 - i)).get(1).toString();
             String stationDateTime = convertedTime(stationTime);
             log.info("24시 넘었을 시 시간 변환: " + stationDateTime);
             int sectionTime = (int) pathTimes.get(String.valueOf(pathTimes.size() - 2 - i)).get(0);
@@ -246,8 +295,7 @@ public class LocationService {
             }
 
             // alarmDateTime에서 sectionDateTime 빼기
-            LocalDateTime alarmDateTime2 = LocalDateTime.parse(alarmDateTime,
-                DateTimeFormatter.ISO_DATE_TIME);
+            LocalDateTime alarmDateTime2 = LocalDateTime.parse(alarmDateTime, DateTimeFormatter.ISO_DATE_TIME);
             LocalDateTime newDateTime = alarmDateTime2.minusMinutes(sectionTime);
 
             // 결과를 문자열로 형식화
@@ -265,7 +313,7 @@ public class LocationService {
         return convertedTimeBefore30(alarmDateTime);
     }
 
-    public String convertedTime(String stationTime) throws Exception {
+    public String convertedTime(String stationTime) throws Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         String stationDateTime;
         if (Integer.parseInt(stationTime.substring(0, 2)) >= 24) {
@@ -280,8 +328,7 @@ public class LocationService {
 
     public String convertedTimeBefore30(String alarmDateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        LocalDateTime alarmDateTime2 = LocalDateTime.parse(alarmDateTime,
-            DateTimeFormatter.ISO_DATE_TIME);
+        LocalDateTime alarmDateTime2 = LocalDateTime.parse(alarmDateTime, DateTimeFormatter.ISO_DATE_TIME);
         String alarmBefore30 = alarmDateTime2.minusMinutes(30).format(formatter);
 
         String alarmTime = alarmBefore30.substring(11, 16);

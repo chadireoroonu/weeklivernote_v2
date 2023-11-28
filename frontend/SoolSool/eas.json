@@ -1,0 +1,53 @@
+{
+	"cli": {
+		"version": ">= 5.6.0"
+	},
+	"build": {
+		"development": {
+			"channel": "development",
+			"developmentClient": true,
+			"distribution": "internal",
+			"android": {
+				"buildType": "apk"
+			},
+			"env": {
+				"REACT_APP_BACK_URL": "https://soolsool.site/api",
+				"RESTAPI_KEY": "b6ffe641bddfb241b3677f88c7462119"
+			}
+		},
+		"preview": {
+			"distribution": "internal"
+		},
+		"emulator": {
+			"android": {
+				"buildType": "apk"
+			},
+			"env": {
+				"REACT_APP_BACK_URL": "https://soolsool.site/api",
+				"RESTAPI_KEY": "b6ffe641bddfb241b3677f88c7462119"
+			}
+		},
+		"simulator": {
+			"ios": {
+				"simulator": true
+			},
+			"env": {
+				"REACT_APP_BACK_URL": "https://soolsool.site/api",
+				"RESTAPI_KEY": "b6ffe641bddfb241b3677f88c7462119"
+			}
+		},
+		"production": {
+			"env": {
+				"REACT_APP_BACK_URL": "https://soolsool.life/api",
+				"RESTAPI_KEY": "b6ffe641bddfb241b3677f88c7462119"
+			}
+		}
+	},
+	"submit": {
+		"production": {
+			"android": {
+				"serviceAccountKeyPath": "./weeklivernote-dd71b33e934d.json"
+			}
+		}
+	}
+}

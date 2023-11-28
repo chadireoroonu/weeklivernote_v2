@@ -1,0 +1,114 @@
+[
+  {
+    "id": 1,
+    "name": "소주",
+    "volume": 360,
+    "unit": "병",
+    "alcoholPercentage": 19,
+    "alcoholAmount": 54.6
+  },
+  {
+    "id": 2,
+    "name": "소주",
+    "volume": 60,
+    "unit": "잔",
+    "alcoholPercentage": 19,
+    "alcoholAmount": 9.1
+  },
+  {
+    "id": 3,
+    "name": "맥주",
+    "volume": 510,
+    "unit": "병",
+    "alcoholPercentage": 5,
+    "alcoholAmount": 20.4
+  },
+  {
+    "id": 4,
+    "name": "맥주",
+    "volume": 170,
+    "unit": "잔",
+    "alcoholPercentage": 5,
+    "alcoholAmount": 6.8
+  },
+  {
+    "id": 5,
+    "name": "소맥",
+    "volume": 200,
+    "unit": "잔",
+    "alcoholPercentage": 10,
+    "alcoholAmount": 16
+  },
+  {
+    "id": 6,
+    "name": "와인",
+    "volume": 750,
+    "unit": "병",
+    "alcoholPercentage": 11,
+    "alcoholAmount": 66
+  },
+  {
+    "id": 7,
+    "name": "와인",
+    "volume": 150,
+    "unit": "잔",
+    "alcoholPercentage": 11,
+    "alcoholAmount": 13.2
+  },
+  {
+    "id": 8,
+    "name": "막걸리",
+    "volume": 750,
+    "unit": "병",
+    "alcoholPercentage": 6,
+    "alcoholAmount": 36
+  },
+  {
+    "id": 9,
+    "name": "막걸리",
+    "volume": 150,
+    "unit": "잔",
+    "alcoholPercentage": 6,
+    "alcoholAmount": 7.2
+  },
+  {
+    "id": 10,
+    "name": "하이볼",
+    "volume": 400,
+    "unit": "잔",
+    "alcoholPercentage": 8,
+    "alcoholAmount": 25.5
+  },
+  {
+    "id": 11,
+    "name": "칵테일(약)",
+    "volume": 200,
+    "unit": "잔",
+    "alcoholPercentage": 8,
+    "alcoholAmount": 12.8
+  },
+  {
+    "id": 12,
+    "name": "칵테일(강)",
+    "volume": 200,
+    "unit": "잔",
+    "alcoholPercentage": 20,
+    "alcoholAmount": 32
+  },
+  {
+    "id": 13,
+    "name": "위스키",
+    "volume": 750,
+    "unit": "병",
+    "alcoholPercentage": 40,
+    "alcoholAmount": 240
+  },
+  {
+    "id": 14,
+    "name": "위스키",
+    "volume": 30,
+    "unit": "잔",
+    "alcoholPercentage": 40,
+    "alcoholAmount": 16
+  }
+]
