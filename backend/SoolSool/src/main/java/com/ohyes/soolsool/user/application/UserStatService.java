@@ -45,7 +45,7 @@ public class UserStatService {
         // 유저의 최장 논 알코올 기간
         int maxNonAlcPeriod = user.getMaxNonalcoholPeriod();
 
-        if (maxNonAlcPeriod < nowNonAlcPeriod) {    // 현재 논 알코올 기간이 더 길다면 최장 논 알코올 기간 업데이트
+        if (maxNonAlcPeriod < nowNonAlcPeriod) {    // 현재 논 알코올 기간이 더 길다면 최장 논 알코올 기간 UPDATE
             maxNonAlcPeriod = nowNonAlcPeriod;
             user.setMaxNonalcoholPeriod(maxNonAlcPeriod);
             userRepository.save(user);
